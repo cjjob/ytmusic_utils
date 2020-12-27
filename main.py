@@ -48,12 +48,14 @@ def main(argv):
 
     # Step 1: Upload local first (if at all,
     # otherwise the songs needed for playlist creation might not be there)
-    ytm_helper.sync_local_library()
+    if FLAGS.upload:
+        ytm_helper.sync_local_library()
 
     # Step 2: Do the new playlists
-    ytm_helper.update_cloud_playlists()
+    if FLAGS.update:
+        ytm_helper.update_cloud_playlists()
 
 
 if __name__ == "__main__":
-    flags.mark_flags_as_required(["upload", "update"])
+    # flags.mark_flags_as_required(["upload", "update"])
     app.run(main)

@@ -73,7 +73,7 @@ class YTMusicHelper:
 
         # Retain the song title and id.
         for song_item in uploaded_song_items:
-            uploaded_songs[song_item["title"]] = song_item["entityId"]
+            uploaded_songs[song_item["title"]] = song_item["videoId"]
 
         return uploaded_songs
 
@@ -199,7 +199,7 @@ class YTMusicHelper:
             if playlist_name.isalpha() and len(playlist_name) == 1:
                 playlist_id = playlist["playlistId"]
                 print(f"Deleting playlist {playlist_name} with id {playlist_id}")
-                # self.ytm_client.delete_playlist(playlist_id)
+                self.ytm_client.delete_playlist(playlist_id)
 
     def update_cloud_playlists(self):
         # Strategy is to delete old playlists
@@ -233,6 +233,6 @@ class YTMusicHelper:
             # Progress output.
             updated += 1
             sys.stdout.write(
-                f"Updating playlist {local_playlist} [{updated}/{playlists_to_update}]",
+                f"\rUpdating playlist {local_playlist} [{updated}/{playlists_to_update}]",
             )
             sys.stdout.flush()
