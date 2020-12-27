@@ -39,11 +39,19 @@ def main(argv):
     if not FLAGS.music_dir:
         user = getpass.getuser()
         FLAGS.music_dir = f"/home/{user}/Music"
-        logging.info("Local music directory set to: %s" % FLAGS.music_dir)
+        logging.info("Local music directory set to: %s", FLAGS.music_dir)
         # accepted = input('Type "y" if this is correct directory: ')
-    ytm_helper = YTMusicHelper(FLAGS.music_dir)
+    ytm_helper = YTMusicHelper(
+        FLAGS.music_dir,
+        auth_headers="/home/conor/workspace/code/ytmusic/headers_auth.json",
+    )
 
+    # Step 1: Upload local first (if at all,
+    # otherwise the songs needed for playlist creation might not be there)
     ytm_helper.sync_local_library()
+
+    # Step 2: Do the new playlists
+    # ytm_helper.update_cloud_playlists()
 
 
 if __name__ == "__main__":
