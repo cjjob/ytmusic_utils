@@ -1,3 +1,8 @@
+"""Helper module for managing library uploads and playlists.
+
+The module assumes a specific naming/tagging convention of local files in order for the
+playlist management to function automatically."""
+
 import collections
 import logging
 import os
@@ -11,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class YTMusicHelper:
+    """Wrapper around API to help with some simple tasks."""
+
     def __init__(
         self,
         local_music_dir,
@@ -101,6 +108,7 @@ class YTMusicHelper:
 
             # Progress output.
             uploaded += 1
+            # TODO: Handle flushing for variable line length.
             sys.stdout.write(f"\rUploading {song} [{uploaded}/{missing_songs_total}]")
             sys.stdout.flush()
 
@@ -117,8 +125,21 @@ class YTMusicHelper:
             sys.stdout.flush()
 
     def _parse_song_playlist(self, filename):
+        """Given a song filename, work out the playlists it belongs to based on the
+        tagging convention. e.g.
+        "song_name [as].mp3" would need to be added to playlists titled "a" and "s".
 
-        # TODO: explain the regex
+        Args:
+            filename (str): The name of the file as "song_name [playlist_info].mp3", not
+            the full path.
+
+        Returns:
+            list(str): The playlist titles the song should be added to.
+        """
+        # Construct regex to validate the string.
+        # Note this is more involved than the earlier `glob` check.
+        # TODO: Explain the regex.
+        # TODO: Do this proper check earlier.
         regex = r"^[^\[\]]+(\[[A-Za-z]*\])\.mp3$"
         regex = re.compile(regex)
         regex_error = f'Song "{filename}" does not follow expected naming convention.'
@@ -130,6 +151,11 @@ class YTMusicHelper:
         return playlist_tags
 
     def _infer_local_playlists(self):
+        """Get all the playlists for the local library.
+
+        Returns:
+            list: The playlists each song should be added to.
+        """
         local_song_filepaths = self._get_local_songs()
 
         playlists = collections.defaultdict(list)
@@ -161,8 +187,6 @@ class YTMusicHelper:
         return songs
 
     def _delete_old_playlists(self):
-        playlists = collections.defaultdict(list)
-
         # `playlist_items` --> list of playlist info dictionaries.
         # Keys are: 'title', 'playlistId', 'thumbnails', 'count'.
         playlist_items = self.ytm_client.get_library_playlists()
@@ -177,9 +201,6 @@ class YTMusicHelper:
                 print(f"Deleting playlist {playlist_name} with id {playlist_id}")
                 # self.ytm_client.delete_playlist(playlist_id)
 
-    def _create_new_playlist(self, playlist_name, song_ids):
-        pass
-
     def update_cloud_playlists(self):
         # Strategy is to delete old playlists
         # and recreate from scratch using local tag info
@@ -189,15 +210,29 @@ class YTMusicHelper:
 
         # Step 2: Create
         local_playlists = self._infer_local_playlists()
+        # TODO: Probably a nicer way to do this than potentially query for this twice.
+        uploaded_songs = self._get_cloud_songs()
 
+        # For each playlist we need to get the corresponding entity ids.
+        # Once we have them we create the new playlists with the appropriate title.
+        playlists_to_update = len(local_playlists)
+        updated = 0
         for local_playlist in local_playlists:
-            continue
-
-        # These are local playlists with filenames to tags
-        # But we need these as the entity ids
-
-    def get_history(self):
-        pass
-
-    def clear_history(self):
-        pass
+            song_names = local_playlists[local_playlist]
+            song_ids = []
+            for song in song_names:
+                # Get entity id from library information.
+                song_id = uploaded_songs[song]
+                song_ids.append(song_id)
+            #
+            self.ytm_client.create_playlist(
+                title=local_playlist,
+                description="",
+                video_ids=song_ids,
+            )
+            # Progress output.
+            updated += 1
+            sys.stdout.write(
+                f"Updating playlist {local_playlist} [{updated}/{playlists_to_update}]",
+            )
+            sys.stdout.flush()
