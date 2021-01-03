@@ -1,2 +1,4 @@
-headers_auth.json
+__pycache__/
 .vscode
+*.log
+headers_auth.json
