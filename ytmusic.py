@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import sys
+import time
 from glob import glob
 
 from ytmusicapi import YTMusic
@@ -77,6 +78,7 @@ class YTMusicHelper:
 
         def get_songs():
             uploaded_songs = dict()
+            logging.info("Requesting songs in cloud library.")
             uploaded_song_items = self.ytm_client.get_library_upload_songs(
                 limit=500000,
                 order="a_to_z",
@@ -131,6 +133,13 @@ class YTMusicHelper:
                 delete_result == "STATUS_SUCCEEDED"
             ), f"Failed to delete {song}. Response from request: {delete_result}."
             sys.stdout.flush()
+
+        if extra_songs_total > 0:
+            # TODO: Remove this when we check for whether the song is the same.
+            # We only have to do this now because YouTube does not like it when we delete
+            # and re-upload the same file.
+            logging.info("Pausing before uploading to prevent 409 Conflict...")
+            time.sleep(15)
 
         # Upload new songs.
         missing_songs_total = len(missing_songs)
@@ -212,6 +221,7 @@ class YTMusicHelper:
         cloud_playlists = dict()
 
         # Step 1
+        logging.info("Requesting playlists in cloud library.")
         playlist_items = self.ytm_client.get_library_playlists()
 
         # Step 2

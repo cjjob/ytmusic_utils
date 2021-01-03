@@ -31,4 +31,5 @@ Note:
 ## TODOs
 
 - Don't delete the files and re-upload when playlist tags change.
+- Fix the flushing on command line.
 - Handle non-mp3 files.

@@ -74,10 +74,13 @@ def main(argv):
     # Step 1: Library
     if FLAGS.sync_library:
         ytm_helper.sync_local_library()
-        # There is a small delay between uploading songs and them being available to
-        # manage for playlists. Probably some processing YT does for storage.
-        # Hence, small sleep.
-        time.sleep(5)
+        # There is a delay between uploading songs and them being available to manage
+        # for playlists. Probably some processing YT does for storage.
+        # Hence, this sleep.
+        logging.info(
+            "Pausing before updating playlists to ensure songs are available..."
+        )
+        time.sleep(60)
 
     # Step 2: Playlists
     if FLAGS.sync_playlists:
