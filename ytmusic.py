@@ -127,7 +127,7 @@ class YTMusicHelper:
         extra_songs_total = len(extra_songs)
         for i, song in enumerate(extra_songs, 1):
             song_id = cloud_songs[song]["entityId"]
-            sys.stdout.write(f"\rDeleting {song} [{i}/{extra_songs_total}]")
+            sys.stdout.write(f"\rDeleting {song:<40} [{i:<4}/{extra_songs_total:<4}]")
             delete_result = self.ytm_client.delete_upload_entity(song_id)
             assert (
                 delete_result == "STATUS_SUCCEEDED"
@@ -145,7 +145,11 @@ class YTMusicHelper:
         missing_songs_total = len(missing_songs)
         for i, song in enumerate(missing_songs, 1):
             missing_song_filepath = os.path.join(self.music_dir, song)
-            sys.stdout.write(f"\rUploading {song} [{i}/{missing_songs_total}]")
+            # Syntax f'{:<n}' to print at least n character, left aligned.
+            # Prevents leftover chars once the next output is printed.
+            sys.stdout.write(
+                f"\rUploading {song:<40} [{i:<4}/{missing_songs_total:<4}]"
+            )
             upload_result = self.ytm_client.upload_song(missing_song_filepath)
             assert (
                 upload_result == "STATUS_SUCCEEDED"
@@ -385,7 +389,7 @@ class YTMusicHelper:
             # Progress output.
             updated += 1
             sys.stdout.write(
-                f"\rUpdating playlist {local_playlist} [{updated}/{playlists_to_update}]",
+                f"\rUpdating playlist {local_playlist:<3} [{updated:<3}/{playlists_to_update:<3}]",
             )
             sys.stdout.flush()
             self._match_playlist_items(playlist_id, songs)
