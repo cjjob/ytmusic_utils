@@ -1,0 +1,9 @@
+The tool assumes you have a library to manage, i.e. you have some music.
+
+If you don't have music but would like some for free...
+consider googling the youtube-dl python package.
+
+e.g.
+youtube-dl: pip install -U youtube-dl
+format:     youtube-dl -x --audio-format mp3 *video/playlist* -o '~/Downloads/%(title)s.%(ext)s'
+example:    youtube-dl -x --audio-format mp3 https://www.youtube.com/playlist?list=PLgsl0iMPC0P4cxPa4TXZOOXJr_Npxqv2u -o '~/personal/downloads/%(title)s.%(ext)s'
